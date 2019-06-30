@@ -9,7 +9,7 @@ const DB = process.env.DATABASE;
 
 mongoose.connect(DB, { useCreateIndex: true, useNewUrlParser: true, useFindAndModify: false})
     .then(con => {
-        console.log(`Connection success :  ${con}`);
+        console.log(`Connection success`);
     })
     .catch(err => {
         console.log('Could not connect')

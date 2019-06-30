@@ -9,9 +9,15 @@ const app = express();
 
 const publicDir = path.join(__dirname, 'public');
 app.use(express.static(publicDir));
+app.use(express.json())
+
+app.use((req, res, next)=>{
+    req.requestTime = Date.now();
+    next();
+})
 
 app.use('/user', userRouter);
-app.use('/tours', tourRouter);
+app.use('/tour', tourRouter);
 
 module.exports = {
     app
