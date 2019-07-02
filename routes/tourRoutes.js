@@ -5,6 +5,9 @@ tourRouter
     .route('/top-5-cheap')
     .get(tourControllers.aliasTopTours, tourControllers.getAllTour);
 
+tourRouter.route('/tour-stats').get(tourControllers.getTourStats);
+tourRouter.route('/monthly-plan/:year').get(tourControllers.getMonthlyPlan);
+
 tourRouter
     .route('/')
     .get(tourControllers.getAllTour)
