@@ -72,9 +72,9 @@ const tourSchema = new mongoose.Schema({
     startDates: [Date]
 });
 
-tourSchema.pre(/^find/, function(next){
-    console.log(this);
-})
+// tourSchema.pre(/^find/, function(next){
+
+// })
 
 
 const Tour = mongoose.model('Tour', tourSchema);
