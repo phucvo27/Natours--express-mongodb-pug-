@@ -5,13 +5,13 @@ const mongoose = require('mongoose');
 process.on('uncaughtException', (err)=>{
     console.log('Uncaught Exception , shutting down server');
     console.log(err.name, err.message);
+    console.log(err.stack)
     // must close server first 
     process.exit(1);
 })
 
 dotenv.config({path : './config.env'});
 const { app } = require('./app');
-
 
 const { PORT } = process.env;
 const DB = process.env.DATABASE;

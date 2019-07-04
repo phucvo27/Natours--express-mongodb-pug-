@@ -1,10 +1,16 @@
-//const User = require('../models/User');
+const { User } = require('../models/User');
+const catchAsync = require('../utils/catchAsync');
 
-exports.getAllUser = (req, res)=>{
+exports.getAllUser = catchAsync(async (req, res, next)=>{
+    const users = await User.find({});
+
     res.status(200).json({
-        status: 'success'
+        status: 'success',
+        data: {
+            users
+        }
     })
-}
+})
 exports.getUser = (req, res)=>{
     res.status(500).json({
         status: 'fail',

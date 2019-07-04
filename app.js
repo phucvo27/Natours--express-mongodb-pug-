@@ -19,7 +19,7 @@ app.use((req, res, next)=>{
 })
 
 app.use('/user', userRouter);
-app.use('/tour', tourRouter);
+app.use('/tours', tourRouter);
 
 // Error handling route
 

@@ -1,7 +1,10 @@
 const userRouter = require('express').Router();
 const userControllers = require('../controller/userController');
+const authController = require('../controller/authController');
 
-//userRouter.param('id', userControllers.checkId);
+
+userRouter.post('/signup', authController.signup);
+userRouter.post('/login', authController.login);
 
 userRouter
     .route('/')
