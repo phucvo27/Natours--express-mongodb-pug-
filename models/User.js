@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
@@ -43,7 +44,9 @@ const userSchemas = new mongoose.Schema({
             message: 'Make sure the confirm is same as your password'
         }
     },
-    passwordChangedAt: Date
+    passwordChangedAt: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date
 
 });
 
@@ -72,6 +75,13 @@ userSchemas.methods.correctPassword = async function(passwordFromClient, userPas
     return await bcrypt.compare(passwordFromClient, userPassword); // return true if password is same
 }
 
+userSchemas.methods.createPasswordResetToken = function(){
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+    this.passwordResetExpires = Date.now() + 10*60*1000; // only available in 10 minute
+    return resetToken;
+}
 
 const User = mongoose.model('User', userSchemas);
 
