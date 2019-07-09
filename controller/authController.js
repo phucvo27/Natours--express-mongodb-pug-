@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
 const { User } = require('../models/User');
@@ -123,5 +124,50 @@ exports.forgotPassword = catchAsync(async (req, res, next)=>{
 });
 
 exports.resetPassword = catchAsync(async (req, res, next)=>{
+    // 1. Get the user based on toke
+    const passwordResetToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+
+    // 2. Check token does it expired
+    const user = await User.findOne({passwordResetToken, passwordResetExpires: {$gt: Date.now()}});
+    if(!user){
+        return next(new AppError('Your token is expired. Please try again', 400));
+    }
+
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    
+    await user.save();
+
+    const token = generateToken(user._id);
+    res.status(200).json({
+        status: 'success',
+        token
+    })
 
 });
+
+exports.updatePassword = catchAsync(async (req, res, next)=>{
+
+    // 1. Get user from db
+    const user = await User.findById(req.user._id).select("+password");
+
+    // 2. check posted password 
+    if(!(await user.correctPassword(req.body.passwordCurrent, user.password))){
+        return next(new AppError('Your current password is wrong', 400))
+    }
+
+    // 3. Update password
+    user.password = req.body.password,
+    user.passwordConfirm = req.body.passwordConfirm;
+
+    await user.save();
+
+    const token = generateToken(user._id);
+    res.status(200).json({
+        status: 'success',
+        token
+    })
+
+})

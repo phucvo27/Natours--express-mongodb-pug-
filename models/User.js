@@ -46,7 +46,12 @@ const userSchemas = new mongoose.Schema({
     },
     passwordChangedAt: Date,
     passwordResetToken: String,
-    passwordResetExpires: Date
+    passwordResetExpires: Date,
+    active: {
+        type: Boolean,
+        default: true,
+        select: false
+    }
 
 });
 
@@ -62,6 +67,17 @@ userSchemas.pre('save', async function(next){
     user.passwordConfirm = undefined; 
 });
 
+userSchemas.pre('save', function(next){
+    if(!this.isModified('password') || this.isNew) return next();
+    this.passwordChangedAt = Date.now() - 1000; // make sure our token valid 
+    next()
+})
+
+userSchemas.pre('find', function(next){
+    // before the query is actually executed -> we add new condition into it
+    this.find({active: {$ne: false}});
+    next();
+})
 userSchemas.methods.changedPasswordAfter = function(JWTTimestamp){
     // if user does not change password before -> it will be undefined
     if(this.passwordChangedAt){
