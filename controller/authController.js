@@ -5,6 +5,7 @@ const { User } = require('../models/User');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const sendEmail = require('../utils/email');
+const { sendResponseToken } = require('../utils/helpers'); 
 
 const verifyToken = promisify(jwt.verify);
 
@@ -14,14 +15,7 @@ const generateToken = (id)=>{
 
 exports.signup = catchAsync(async (req, res, next)=>{
     const newUser = await User.create(req.body);
-    const token = generateToken(newUser._id);
-    res.status(200).json({
-        status: 'success',
-        token,
-        data: {
-            user: newUser
-        }
-    })
+    sendResponseToken(newUser, 200, res);
 });
 
 exports.login = catchAsync(async ( req, res, next)=>{
@@ -36,11 +30,8 @@ exports.login = catchAsync(async ( req, res, next)=>{
     if(!user || !(await user.correctPassword(password, user.password))){
         return next(new AppError('Incorrect email or password', 400));
     }
-    const token = generateToken(user._id);
-    res.status(200).json({
-        status: 'success',
-        token
-    })  
+    sendResponseToken(user, 200, res);
+      
 })
 
 exports.protect = catchAsync(async (req, res, next)=>{
@@ -140,11 +131,7 @@ exports.resetPassword = catchAsync(async (req, res, next)=>{
     
     await user.save();
 
-    const token = generateToken(user._id);
-    res.status(200).json({
-        status: 'success',
-        token
-    })
+    sendResponseToken(user, 200, res);
 
 });
 
@@ -164,10 +151,6 @@ exports.updatePassword = catchAsync(async (req, res, next)=>{
 
     await user.save();
 
-    const token = generateToken(user._id);
-    res.status(200).json({
-        status: 'success',
-        token
-    })
+    sendResponseToken(user, 200, res);
 
 })

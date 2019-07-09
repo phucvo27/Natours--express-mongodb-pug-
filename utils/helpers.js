@@ -11,9 +11,19 @@ const generateToken = (id)=>{
 }
 exports.sendResponseToken = (user , statusCode, res )=>{
     const token = generateToken(user._id);
-
+    const cookieOptions = {
+        httpOnly: true,
+        expires: new Date(Date.now() + 24*60*60*1000)
+    }
+    if(process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+    // remove the password from output -> when creating document , the pasword field is returned from query ( select false only work with query )
+    user.password = undefined;
+    res.cookie('jwt', token, cookieOptions)
     res.status(statusCode).json({
         status: 'success',
-        token
+        token,
+        data: {
+            user
+        }
     })
 }

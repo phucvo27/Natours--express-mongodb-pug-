@@ -1,7 +1,11 @@
 // Set up express server
 const express = require('express');
 const path = require('path');
-
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const hpp = require('hpp');
 // get route
 const { userRouter } = require('./routes/userRoutes');
 const { tourRouter } = require('./routes/tourRoutes');
@@ -10,8 +14,33 @@ const globalError = require('./controller/errorController');
 const app = express();
 
 const publicDir = path.join(__dirname, 'public');
+
+// Set security for HTTP Header
+
+app.use(helmet());
+
+// only accept 100 request from same ip on 1 hour
+const limiter = rateLimit({
+    max: 100,
+    windowMs: 60*60*1000,
+    message: 'Too many request from this Ip , please try again in an hour' 
+});
+
+
+app.use(limiter);
 app.use(express.static(publicDir));
-app.use(express.json())
+app.use(express.json());
+
+// Prevent NoSQL Injection
+app.use(mongoSanitize())
+
+// Prevent XSS attack
+app.use(xss());
+
+// Prevent parameter pollution
+app.use(hpp({
+    whitelist: ['duration', 'ratingsQuantity', 'ratingsAverage', 'maxGroupSize', 'difficulty', 'price']
+}))
 
 app.use((req, res, next)=>{
     req.requestTime = new Date().toISOString();
