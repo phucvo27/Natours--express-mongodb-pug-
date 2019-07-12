@@ -69,12 +69,47 @@ const tourSchema = new mongoose.Schema({
         type: Date,
         default: Date.now()
     },
-    startDates: [Date]
+    startDates: [Date],
+    startLocation: {
+        type: {
+            type: String,
+            default: 'Point',
+            enum: ['Point']
+        },
+        coordinates: [Number],
+        address: String,
+        description: String
+    },
+    locations: [
+        {
+            type: {
+                type: String,
+                default: 'Point',
+                enum: ['Point']
+            },
+            coordinates: [Number],
+            address: String,
+            description: String
+        }
+    ],
+    guides: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }
+    ]
+}, {
+    toJSON: { virtuals: true},
+    toObject: { virtuals: true}
 });
 
-// tourSchema.pre(/^find/, function(next){
-
-// })
+tourSchema.pre(/^find/, function(next){
+    this.populate({
+        path: 'guides',
+        select: '-__v -passwordChangedAt'
+    });
+    next();
+})
 
 
 const Tour = mongoose.model('Tour', tourSchema);

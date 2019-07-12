@@ -9,8 +9,9 @@ const hpp = require('hpp');
 // get route
 const { userRouter } = require('./routes/userRoutes');
 const { tourRouter } = require('./routes/tourRoutes');
+const { reviewRoute } = require('./routes/reviewRoutes');
 const AppError = require('./utils/appError');
-const globalError = require('./controller/errorController');
+const globalError = require('./controllers/errorController');
 const app = express();
 
 const publicDir = path.join(__dirname, 'public');
@@ -49,6 +50,7 @@ app.use((req, res, next)=>{
 
 app.use('/user', userRouter);
 app.use('/tours', tourRouter);
+app.use('/review', reviewRoute)
 
 // Error handling route
 

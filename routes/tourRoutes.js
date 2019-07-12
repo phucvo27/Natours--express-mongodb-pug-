@@ -1,6 +1,6 @@
 const tourRouter = require('express').Router();
-const tourControllers = require('../controller/tourController');
-const authController = require('../controller/authController');
+const tourControllers = require('../controllers/tourController');
+const authController = require('../controllers/authController');
 tourRouter
     .route('/top-5-cheap')
     .get(tourControllers.aliasTopTours, tourControllers.getAllTour);
