@@ -111,6 +111,11 @@ tourSchema.pre(/^find/, function(next){
     next();
 })
 
+tourSchema.virtual('reviews', {
+    ref: 'Review',
+    localField: '_id',
+    foreignField: 'tour'
+})
 
 const Tour = mongoose.model('Tour', tourSchema);
 

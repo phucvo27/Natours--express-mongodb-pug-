@@ -3,7 +3,9 @@ const Review = require('../models/Review');
 const helper = require('../utils/helpers');
 
 exports.getAllReviews = catchAsync(async (req, res, next)=>{
-    const reviews = await Review.find();
+    let filter = {};
+    if(req.params.tourId) filter = {tour: req.params.tourId}
+    const reviews = await Review.find(filter);
     
     res.status(200).json({
         status: 'Success',
@@ -15,7 +17,9 @@ exports.getAllReviews = catchAsync(async (req, res, next)=>{
 
 
 exports.createReview = catchAsync(async (req, res, next)=>{
-    const objBody = helper.filterBody(req.body, 'review', 'rate', 'tour', 'user');
+    const objBody = helper.filterBody(req.body, 'review', 'rate');
+    objBody.user = req.user;
+    objBody.tour = req.params.tourId
     const review = await Review.create(objBody);
 
     res.status(200).json({

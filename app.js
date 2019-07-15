@@ -9,7 +9,7 @@ const hpp = require('hpp');
 // get route
 const { userRouter } = require('./routes/userRoutes');
 const { tourRouter } = require('./routes/tourRoutes');
-const { reviewRoute } = require('./routes/reviewRoutes');
+const { reviewRouter } = require('./routes/reviewRoutes');
 const AppError = require('./utils/appError');
 const globalError = require('./controllers/errorController');
 const app = express();
@@ -50,7 +50,7 @@ app.use((req, res, next)=>{
 
 app.use('/user', userRouter);
 app.use('/tours', tourRouter);
-app.use('/review', reviewRoute)
+app.use('/review', reviewRouter)
 
 // Error handling route
 
