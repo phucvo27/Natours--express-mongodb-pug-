@@ -15,13 +15,13 @@ tourRouter.route('/monthly-plan/:year').get(tourControllers.getMonthlyPlan);
 
 tourRouter
     .route('/')
-    .get(authController.protect,tourControllers.getAllTour)
-    .post(tourControllers.createTour);
+    .get(tourControllers.getAllTour)
+    .post(authController.protect, authController.restrictTo('admin', 'lead-guid'),tourControllers.createTour);
 
 tourRouter
     .route('/:id')
     .get(tourControllers.getTour)
-    .patch(tourControllers.updateTour)
+    .patch(authController.protect, authController.restrictTo('lead-guid', 'admin'), tourControllers.updateTour)
     .delete( authController.protect, authController.restrictTo('lead-guid', 'admin') ,tourControllers.deleteTour);
 
 module.exports = { tourRouter };

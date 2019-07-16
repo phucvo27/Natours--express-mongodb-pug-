@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const { Tour } = require('./Tour');
 
 const reviewSchema = new mongoose.Schema({
     review: {
@@ -35,16 +35,52 @@ reviewSchema.pre(/^find/, function(next){
         path: 'user',
         select: 'name photo'
     })
-    // this.populate({
-    //     path: 'tour',
-    //     select: 'name'
-    // }).populate({
-    //     path: 'user',
-    //     select: 'name photo'
-    // })
     next();
 })
 
+reviewSchema.index({tour: 1, user: 1}, {unique: true})
+
+reviewSchema.statics.calAverageRatings = async function(tourId){
+
+    const stats = await this.aggregate([
+        {
+            $match: { tour: tourId}
+        },
+        {
+            $group: {
+                _id: "$tour",
+                nRatings: {$sum: 1},
+                avgRating: { $avg: '$rating' }
+            }
+        }
+    ]);
+    if(stats.length > 0){
+        await Tour.findByIdAndUpdate({_id: tourId} , {
+            ratingsAverage: stats[0].avgRating,
+            ratingsQuantity: stats[0].nRatings
+        })
+    }else{
+        // because 4.5 is default value
+        await Tour.findByIdAndUpdate({_id: tourId} , {
+            ratingsAverage: 4.5,
+            ratingsQuantity: 0
+        })
+    }
+}
+
+reviewSchema.post('save', function(){
+    // update avgRating when completely save review
+    this.constructor.calAverageRatings(this.tour);
+});
+reviewSchema.pre(/^findOneAnd/, function(next){
+    console.log('Preparing for update');
+    next();
+})
+reviewSchema.post(/^findOneAnd/, async function(reviewUpdated){
+    // when update or delete review -> must update avgRating of certain Tour
+    console.log('======== Updated============ \n')
+    await reviewUpdated.constructor.calAverageRatings(reviewUpdated.tour)
+});
 
 const Review = mongoose.model('Review', reviewSchema);
 

@@ -9,12 +9,14 @@ const { sendResponseToken } = require('../utils/helpers');
 
 const verifyToken = promisify(jwt.verify);
 
-const generateToken = (id)=>{
-    return jwt.sign({id}, process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRES})
-}
 
 exports.signup = catchAsync(async (req, res, next)=>{
-    const newUser = await User.create(req.body);
+    const newUser = await User.create({
+        name: req.body.name,
+        email: req.body.email,
+        password: req.body.password,
+        passwordConfirm: req.body.passwordConfirm
+    });
     sendResponseToken(newUser, 200, res);
 });
 

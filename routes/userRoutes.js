@@ -7,12 +7,16 @@ userRouter.post('/signup', authController.signup);
 userRouter.post('/login', authController.login);
 userRouter.post('/forgotPassword', authController.forgotPassword);
 userRouter.patch('/resetPassword/:token', authController.resetPassword);
-userRouter.patch('/updatePassword', authController.protect ,authController.updatePassword);
 
-userRouter.get('/me', authController.protect, userControllers.getMe, userControllers.getUser);
-userRouter.patch('/updateMe', authController.protect ,userControllers.updateMe);
-userRouter.delete('/deleteMe', authController.protect ,userControllers.deleteMe);
 
+userRouter.use(authController.protect);
+
+userRouter.patch('/updatePassword', authController.updatePassword);
+userRouter.get('/me', userControllers.getMe, userControllers.getUser);
+userRouter.patch('/updateMe',userControllers.updateMe);
+userRouter.delete('/deleteMe',userControllers.deleteMe);
+
+userRouter.use(authController.restrictTo('admin'))
 userRouter
     .route('/')
     .get(userControllers.getAllUser)
